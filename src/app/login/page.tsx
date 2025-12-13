@@ -1,5 +1,5 @@
+"use client";
 import {
-  ArrowLeft,
   EyeIcon,
   EyeOff,
   Leaf,
@@ -12,35 +12,25 @@ import {
 import { motion } from "motion/react";
 import Image from "next/image";
 import googleImage from "@/assets/Google__G__logo.svg.webp";
-import React, { useState } from "react";
+import React, { FormEvent, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 
-type propType = {
-  previousStep: (s: number) => void;
-};
-
-const RegisterForm = ({ previousStep }: propType) => {
-  const [name, setName] = useState("");
+const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsloading] = useState(false);
+  const router = useRouter();
 
-  const router = useRouter()
+  const formValidation = email.trim() !== "" && password.trim() !== "";
 
-  const formValidation =
-    name.trim() !== "" && email.trim() !== "" && password.trim() !== "";
-
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     try {
       setIsloading(true);
-      const res = await axios.post("/api/auth/register", {
-        name,
-        email,
-        password,
-      });
+      signIn("credentials", { email, password });
       setIsloading(false);
     } catch (error) {
       console.log(error);
@@ -50,14 +40,6 @@ const RegisterForm = ({ previousStep }: propType) => {
 
   return (
     <div className="flex flex-col items-center min-h-screen justify-center relative bg-white px-6 py-10">
-      <div
-        className="absolute top-6 left-6 flex item-center justify-center gap-2 text-green-700 hover:text-green-800 transition-colors cursor-pointer"
-        onClick={() => previousStep(1)}
-      >
-        <ArrowLeft className="h-5 w-5" />
-        <span className="font-medium">Back</span>
-      </div>
-
       <motion.div
         initial={{
           opacity: 0,
@@ -73,15 +55,15 @@ const RegisterForm = ({ previousStep }: propType) => {
         className="flex flex-col gap-3"
       >
         <h1 className="font-extrabold text-4xl text-green-700 mb-2">
-          Create your account
+          Welcome Back
         </h1>
         <p className="flex items-center text-gray-800 mb-8 justify-center">
-          Join Snapcart today <Leaf className="text-green-600 w-5 h-5" />
+          Login to Snapcart <Leaf className="text-green-600 w-5 h-5" />
         </p>
       </motion.div>
 
       <motion.form
-        onSubmit={handleRegister}
+        onSubmit={handleLogin}
         initial={{
           opacity: 0,
         }}
@@ -93,16 +75,6 @@ const RegisterForm = ({ previousStep }: propType) => {
         }}
         className="flex flex-col gap-3 w-full max-w-sm"
       >
-        <div className="relative">
-          <User className="absolute left-3 top-3.5 w-5 h-5" />
-          <input
-            type="text"
-            placeholder="Your name"
-            onChange={(e) => setName(e.target.value)}
-            value={name}
-            className="w-full border border-gray-300 text-gray-800 rounded-xl focus:ring-2 focus:ring-green-500 focus:outline-none py-3 pl-10 pr-4"
-          />
-        </div>
         <div className="relative">
           <Mail className="absolute left-3 top-3.5 w-5 h-5" />
           <input
@@ -118,7 +90,7 @@ const RegisterForm = ({ previousStep }: propType) => {
           <Lock className="absolute left-3 top-3.5 w-5 h-5" />
           <input
             type={showPassword ? "text" : "password"}
-            placeholder="Your email"
+            placeholder="Your password"
             onChange={(e) => setPassword(e.target.value)}
             value={password}
             className="w-full border border-gray-300 text-gray-800 rounded-xl focus:ring-2 focus:ring-green-500 focus:outline-none py-3 pl-10 pr-4"
@@ -145,11 +117,7 @@ const RegisterForm = ({ previousStep }: propType) => {
               : "bg-gray-600 cursor-not-allowed"
           }`}
         >
-          {isLoading ? (
-            <Loader className=" animate-spin h-5 w-5" />
-          ) : (
-            "Register"
-          )}
+          {isLoading ? <Loader className=" animate-spin h-5 w-5" /> : "Login"}
         </button>
 
         <div className="items-center gap-2 flex text-gray-400 text-sm mt-2">
@@ -165,11 +133,16 @@ const RegisterForm = ({ previousStep }: propType) => {
       </motion.form>
 
       <p className="flex gap-1 items-center text-gray-600 cursor-pointer mt-6 text-sm">
-        Already have account <LogIn className="w-4 h-4" />{" "}
-        <span onClick={()=>router.push('/login')} className="text-green-600">Sign</span>
+        Want to create an account <LogIn className="w-4 h-4" />{" "}
+        <span
+          onClick={() => router.push("/register")}
+          className="text-green-600"
+        >
+          Sign Up
+        </span>
       </p>
     </div>
   );
 };
 
-export default RegisterForm;
+export default Login;

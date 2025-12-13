@@ -22,7 +22,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           throw new Error("User not found please register first"); // yaha par return se error handle is liye nahi kiya gaya hai kyuki authorize function me ye error deta hai kyuki ye sirf YOU CAN’T RETURN NextResponse.json()
         }
 
-        const isMatched = await bcrypt.compare(password, user.Password);
+        const isMatched = await bcrypt.compare(password, user.password);
         if (!isMatched) {
           throw new Error("Incorrect Password");
         }
