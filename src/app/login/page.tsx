@@ -15,7 +15,7 @@ import googleImage from "@/assets/Google__G__logo.svg.webp";
 import React, { FormEvent, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -37,6 +37,9 @@ const Login = () => {
       setIsloading(false);
     }
   };
+
+  const session = useSession();
+  console.log(session);
 
   return (
     <div className="flex flex-col items-center min-h-screen justify-center relative bg-white px-6 py-10">
