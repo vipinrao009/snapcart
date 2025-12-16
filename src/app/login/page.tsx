@@ -40,6 +40,8 @@ const Login = () => {
         callbackUrl, // 🔥 THIS LINE
         redirect: true, // 🔥 IMPORTANT
       });
+
+      router.push('/')
       setIsloading(false);
     } catch (error) {
       console.log(error);

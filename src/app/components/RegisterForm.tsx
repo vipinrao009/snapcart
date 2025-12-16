@@ -42,6 +42,7 @@ const RegisterForm = ({ previousStep }: propType) => {
         email,
         password,
       });
+      router.push('/login')
       setIsloading(false);
     } catch (error) {
       console.log(error);
