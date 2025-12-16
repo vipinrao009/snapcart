@@ -14,7 +14,7 @@ import Image from "next/image";
 import googleImage from "@/assets/Google__G__logo.svg.webp";
 import React, { FormEvent, useState } from "react";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
 
 const Login = () => {
@@ -24,13 +24,22 @@ const Login = () => {
   const [isLoading, setIsloading] = useState(false);
   const router = useRouter();
 
+  const searchParams = useSearchParams();
+
+  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+
   const formValidation = email.trim() !== "" && password.trim() !== "";
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     try {
       setIsloading(true);
-      signIn("credentials", { email, password });
+      await signIn("credentials", {
+        email,
+        password,
+        callbackUrl, // 🔥 THIS LINE
+        redirect: true, // 🔥 IMPORTANT
+      });
       setIsloading(false);
     } catch (error) {
       console.log(error);
@@ -129,7 +138,11 @@ const Login = () => {
           <span className="flex-1 h-px bg-gray-500"></span>
         </div>
 
-        <button type="button" onClick={()=>signIn("google")} className="w-full cursor-pointer flex items-center justify-center rounded-xl gap-3 border border-gray-400 hover:bg-gray-50 py-3 text-gray-700 font-medium transition-all duration-200">
+        <button
+          type="button"
+          onClick={() => signIn("google",{callbackUrl:'/'})}
+          className="w-full cursor-pointer flex items-center justify-center rounded-xl gap-3 border border-gray-400 hover:bg-gray-50 py-3 text-gray-700 font-medium transition-all duration-200"
+        >
           <Image src={googleImage} width={30} height={30} alt="google" />
           Continue with google
         </button>
