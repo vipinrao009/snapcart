@@ -2,11 +2,12 @@ import { auth } from "@/auth";
 import { connectTODatabase } from "@/lib/db";
 import User from "@/models/user.model";
 import EditRoleMobile from "./components/EditRoleMobile";
+import Navbar from "./components/Navbar";
 
 export default async function Home() {
   await connectTODatabase();
   const session = await auth();
-  const user = await User.findById(session?.user?.id);
+  const user = await User.findById(session?.user?.id).lean();
 
   const inComplete =
     !user.mobile || !user.role || (!user.mobile && user.role == "user");
@@ -15,9 +16,10 @@ export default async function Home() {
     return <EditRoleMobile />;
   }
   console.log(session);
+  const planUser = JSON.parse(JSON.stringify(user)); // ye long process hai isko .lean() ke throgh kar sakte hai
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <h1>Hello vipin</h1>
+    <div>
+      <Navbar user={planUser} />
     </div>
   );
 }
