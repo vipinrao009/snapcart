@@ -5,11 +5,7 @@ export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // ✅ public routes
-  const publicRoutes = [
-    "/login",
-    "/register",
-    "/api/auth",
-  ];
+  const publicRoutes = ["/login", "/register", "/api/auth"];
 
   if (publicRoutes.some((path) => pathname.startsWith(path))) {
     return NextResponse.next();
@@ -32,11 +28,22 @@ export async function proxy(req: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+  const role = token.role;
+
+  if (pathname.startsWith("/user") && role !== "user") {
+    return NextResponse.redirect(new URL("/unauthorized", req.url));
+  }
+  if (pathname.startsWith("/delivery") && role !== "deliveryBoy") {
+    return NextResponse.redirect(new URL("/unauthorized", req.url));
+  }
+  if (pathname.startsWith("/admin") && role !== "admin") {
+    return NextResponse.redirect(new URL("/unauthorized", req.url));
+  }
+
   // ✅ logged in
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: '/((?!api|_next/static|_next/image|favicon.ico).*)'
-}
-
+  matcher: "/((?!api|_next/static|_next/image|favicon.ico).*)",
+};
