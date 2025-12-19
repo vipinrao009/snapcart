@@ -46,7 +46,7 @@ const Navbar = ({ user }: { user: IUser }) => {
 
   console.log(user);
   return (
-    <div className="fixed top-4 left-1/2 -translate-x-1/2 w-[95%] bg-linear-to-r from-green-500 to-green-700 rounded-2xl shadow-lg shadow-black/30 h-20 px-4 md:px-8 flex justify-between items-center z-50">
+    <div className="fixed top-4 left-1/2 -translate-x-1/2 w-[95%] bg-linear-to-r from-green-500 to-green-700 rounded-2xl shadow-lg shadow-black/30 h-15 px-4 md:px-8 flex justify-between items-center z-50">
       {/* Left section */}
       <Link
         href="/"
