@@ -2,6 +2,7 @@
 import axios from "axios";
 import { ArrowRight, Bike, User, UserCog } from "lucide-react";
 import { motion } from "motion/react";
+import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -17,7 +18,8 @@ const EditRoleMobile = () => {
   const [mobile, setMobile] = useState("");
 
   const isDisabled = mobile.length !== 10 || !selectedRole;
-  const router = useRouter()
+  const router = useRouter();
+  const { update, data } = useSession();
 
   const handleEdit = async () => {
     try {
@@ -25,7 +27,10 @@ const EditRoleMobile = () => {
         role: selectedRole,
         mobile,
       });
-      router.push("/")
+
+      await update({ role: selectedRole });
+      
+      router.push("/");
     } catch (error) {
       console.log(error);
     }

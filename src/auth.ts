@@ -64,12 +64,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return true;
     },
     // jwt token ke ander user ka data store karta hai (token automatecally generate ho jata hai jab user login hota hai to but uske ander user ka data nahi hota hai)
-    jwt({ token, user }) {
+    jwt({ token, user, trigger, session }) {
       if (user) {
         (token.id = user.id),
           (token.name = user.name),
           (token.email = user.email),
           (token.role = user.role);
+      }
+
+      if(trigger == "update"){ // baad me huaa role ko update karne ke liye in session (editRoleMbile se aa raha hai)
+        token.role = session.role
       }
       return token;
     },
