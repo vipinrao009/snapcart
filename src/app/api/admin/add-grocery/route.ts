@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
     await connectTODatabase();
 
     const session = await auth();
-    if (session?.user?.role == "admin") {
+    if (session?.user?.role !== "admin") {
       return NextResponse.json(
         { message: "You are not authorized" },
         { status: 400 }
