@@ -101,6 +101,7 @@ const HeroSection = () => {
         <div className="absolute flex gap-3 left-1/2 bottom-6">
           {slide.map((_, index) => (
             <button
+              key={index}
               className={`w-3 h-3 transition-all rounded-full ${
                 index == currentSlide ? "bg-white w-6" : "bg-white/50"
               }`}

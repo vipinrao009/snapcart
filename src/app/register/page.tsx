@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
-import Welcome from '../components/Welcome'
-import RegisterForm from '../components/RegisterForm'
+import Welcome from '../../components/Welcome'
+import RegisterForm from '../../components/RegisterForm'
 
 const Register = () => {
   const [step, setStep] = useState(1)
