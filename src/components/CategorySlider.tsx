@@ -97,13 +97,27 @@ const CategorySlider = () => {
 
     const { scrollLeft, clientWidth, scrollWidth } = scrollref.current;
     setShowLeft(scrollLeft > 0);
-    setShowRight(scrollLeft + clientWidth < scrollWidth);
+    setShowRight(scrollLeft + clientWidth < scrollWidth - 10);
   };
 
   useEffect(() => {
     scrollref.current?.addEventListener("scroll", checkScroll);
     checkScroll();
     return () => removeEventListener("scroll", checkScroll);
+  }, []);
+
+  useEffect(() => {
+    const autoScroll = setInterval(() => {
+      if (!scrollref.current) return;
+      const { scrollLeft, clientWidth, scrollWidth } = scrollref.current;
+
+      if (scrollLeft + clientWidth >= scrollWidth - 5) {
+        scrollref.current.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        scrollref.current.scrollBy({ left: 300, behavior: "smooth" });
+      }
+    }, 3000);
+    return () => clearInterval(autoScroll);
   }, []);
   return (
     <motion.div
