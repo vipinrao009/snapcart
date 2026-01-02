@@ -172,7 +172,7 @@ const Navbar = ({ user }: { user: IUser }) => {
             </div>
 
             <Link
-              href={""}
+              href={"/user/cart"}
               className="bg-white h-11 w-11 flex justify-center items-center relative rounded-full hover:scale-105"
             >
               <ShoppingCart className="text-black " />

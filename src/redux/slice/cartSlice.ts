@@ -1,8 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import mongoose from "mongoose";
+import next from "next";
 
 interface IGrocery {
-  _id?: mongoose.Types.ObjectId;
+  _id: mongoose.Types.ObjectId;
   name: string;
   category: string;
   price: string;
@@ -15,10 +16,16 @@ interface IGrocery {
 
 interface ICartSlice {
   cartData: IGrocery[];
+  subTotal: number;
+  deliveryFee: number;
+  finalTotal: number;
 }
 
 const initialState: ICartSlice = {
   cartData: [],
+  subTotal: 0,
+  deliveryFee: 40,
+  finalTotal: 40,
 };
 
 const cartSlice = createSlice({
@@ -27,6 +34,7 @@ const cartSlice = createSlice({
   reducers: {
     addTocart: (state, action: PayloadAction<IGrocery>) => {
       state.cartData.push(action.payload);
+      cartSlice.caseReducers.calculateTotal(state);
     },
     increaseQuantity: (
       state,
@@ -39,6 +47,7 @@ const cartSlice = createSlice({
       if (item) {
         item.quantity += 1;
       }
+      cartSlice.caseReducers.calculateTotal(state);
     },
 
     decreaseQuantity: (
@@ -54,10 +63,25 @@ const cartSlice = createSlice({
       } else {
         state.cartData = state.cartData.filter((i) => i._id !== action.payload);
       }
+      cartSlice.caseReducers.calculateTotal(state);
+    },
+
+    deleteFromCart: (state, action) => {
+      state.cartData = state.cartData.filter((i) => i._id !== action.payload);
+      cartSlice.caseReducers.calculateTotal(state);
+    },
+
+    calculateTotal: (state) => {
+      state.subTotal = state.cartData.reduce(
+        (sum, item) => sum + Number(item.price) * item.quantity,
+        0
+      );
+      state.deliveryFee = state.subTotal > 100 ? 0 : 40;
+      state.finalTotal = state.subTotal + state.deliveryFee;
     },
   },
 });
 
-export const { addTocart, increaseQuantity, decreaseQuantity } =
+export const { addTocart, increaseQuantity, decreaseQuantity, deleteFromCart } =
   cartSlice.actions;
 export default cartSlice.reducer;
