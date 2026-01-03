@@ -8,25 +8,79 @@ import {
   Navigation2,
   Phone,
   Search,
-  SearchIcon,
   User,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
 import { useSelector } from "react-redux";
+import "leaflet/dist/leaflet.css";
+import L, { LatLngExpression } from "leaflet";
+
+const markerIcon = new L.Icon({
+  iconUrl: "https://cdn-icons-png.flaticon.com/128/684/684908.png",
+  iconSize: [40, 40],
+  iconAnchor: [20, 40],
+});
 
 const Checkout = () => {
   const router = useRouter();
   const { userData } = useSelector((state: RootState) => state.user);
   const [address, setAddress] = useState({
-    name: userData?.name,
-    mobile: userData?.mobile,
+    name: "",
+    mobile: "",
     city: "",
     state: "",
     pinCode: "",
     fullAddress: "",
   });
+
+  const [position, setPosition] = useState<[number, number] | null>(null);
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          setPosition([latitude, longitude]);
+        },
+        (error) => {
+          console.log(`Location error ${error}`);
+        },
+        { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+      );
+    }
+  }, []);
+
+  useEffect(() => {
+    if (userData) {
+      setAddress((pre) => ({ ...pre, name: userData.name || "" }));
+      setAddress((pre) => ({ ...pre, mobile: userData.mobile || "" }));
+    }
+  }, [userData]);
+
+  const DraggableMarker: React.FC = () => {
+    const map = useMap();
+    useEffect(() => {
+      map.setView(position as LatLngExpression, 15, { animate: true });
+    }, [position, map]);
+
+    return (
+      <Marker
+        draggable={true}
+        icon={markerIcon}
+        position={position as LatLngExpression}
+        eventHandlers={{
+          dragend: (e: L.LeafletEvent) => {
+            const marker = e.target as L.Marker;
+            const { lat, lng } = marker.getLatLng();
+            setPosition([lat, lng]);
+          },
+        }}
+      />
+    );
+  };
 
   return (
     <div className="w-[90%] sm:w-[80%] mx-auto relative py-10">
@@ -70,7 +124,7 @@ const Checkout = () => {
                 type="text"
                 value={address.name}
                 onChange={(e) =>
-                  setAddress({ ...address, name: e.target.value })
+                  setAddress((pre) => ({ ...pre, name: e.target.value }))
                 }
               />
             </div>
@@ -85,7 +139,7 @@ const Checkout = () => {
                 type="text"
                 value={address.mobile}
                 onChange={(e) =>
-                  setAddress({ ...address, mobile: e.target.value })
+                  setAddress((pre) => ({ ...pre, mobile: e.target.value }))
                 }
               />
             </div>
@@ -101,7 +155,7 @@ const Checkout = () => {
                 placeholder="full address"
                 value={address.fullAddress}
                 onChange={(e) =>
-                  setAddress({ ...address, fullAddress: e.target.value })
+                  setAddress((pre) => ({ ...pre, fullAddress: e.target.value }))
                 }
               />
             </div>
@@ -118,7 +172,7 @@ const Checkout = () => {
                   placeholder="city"
                   value={address.city}
                   onChange={(e) =>
-                    setAddress({ ...address, city: e.target.value })
+                    setAddress((pre) => ({ ...pre, city: e.target.value }))
                   }
                 />
               </div>
@@ -157,8 +211,31 @@ const Checkout = () => {
             </div>
 
             <div className="flex gap-2 mt-3">
-              <input type="text" className="flex-1 border p-3 shadow-lg rounded-2xl focus:ring-2 focus:ring-green-500 text-sm outline-none" placeholder="search your city..." />
-              <button className="bg-green-600 text-white px-5 font-medium rounded-lg hover:bg-green-700 transition-all cursor-pointer">Search</button>
+              <input
+                type="text"
+                className="flex-1 border p-3 shadow-lg rounded-2xl focus:ring-2 focus:ring-green-500 text-sm outline-none"
+                placeholder="search your city..."
+              />
+              <button className="bg-green-600 text-white px-5 font-medium rounded-lg hover:bg-green-700 transition-all cursor-pointer">
+                Search
+              </button>
+            </div>
+
+            <div className="relative mt-6 h-[330px] rounded-xl overflow-hidden border border-gray-200 shadow-inner">
+              {position && (
+                <MapContainer
+                  center={position as LatLngExpression}
+                  zoom={13}
+                  scrollWheelZoom={true}
+                  className="w-full h-full"
+                >
+                  <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
+                  <DraggableMarker />
+                </MapContainer>
+              )}
             </div>
           </div>
         </motion.div>
