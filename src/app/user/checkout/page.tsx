@@ -17,6 +17,7 @@ import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
 import { useSelector } from "react-redux";
 import "leaflet/dist/leaflet.css";
 import L, { LatLngExpression } from "leaflet";
+import axios from "axios";
 
 const markerIcon = new L.Icon({
   iconUrl: "https://cdn-icons-png.flaticon.com/128/684/684908.png",
@@ -81,6 +82,27 @@ const Checkout = () => {
       />
     );
   };
+
+  useEffect(() => {
+    const fetchAddress = async () => {
+      if (!position) return;
+
+      try {
+        const res = await axios.get(
+          `/api/user/reverse-geocode?lat=${position[0]}&lon=${position[1]}`
+        );
+        console.log(res.data);
+        setAddress((prev) => ({ ...prev, city: res.data.address.city }));
+        setAddress((prev) => ({ ...prev, state: res.data.address.state }));
+        setAddress((prev) => ({ ...prev, pinCode: res.data.address.postcode }));
+        setAddress((prev) => ({ ...prev, fullAddress: res.data.display_name }));
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchAddress();
+  }, [position]);
 
   return (
     <div className="w-[90%] sm:w-[80%] mx-auto relative py-10">
