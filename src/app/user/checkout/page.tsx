@@ -3,11 +3,17 @@ import { RootState } from "@/redux/store";
 import {
   ArrowLeft,
   Building2,
+  CreditCard,
+  CreditCardIcon,
   Home,
+  Loader,
+  Loader2,
+  LocateFixed,
   MapPin,
   Navigation2,
   Phone,
   Search,
+  Truck,
   User,
 } from "lucide-react";
 import { motion } from "motion/react";
@@ -28,6 +34,10 @@ const markerIcon = new L.Icon({
 const Checkout = () => {
   const router = useRouter();
   const { userData } = useSelector((state: RootState) => state.user);
+  const { subTotal, finalTotal, deliveryFee } = useSelector(
+    (state: RootState) => state.cart
+  );
+
   const [address, setAddress] = useState({
     name: "",
     mobile: "",
@@ -37,7 +47,11 @@ const Checkout = () => {
     fullAddress: "",
   });
 
+  const [searchQuery, setSearchQuery] = useState<string>("");
+
   const [position, setPosition] = useState<[number, number] | null>(null);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"online" | "cod">("cod");
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -103,6 +117,34 @@ const Checkout = () => {
 
     fetchAddress();
   }, [position]);
+
+  const handleSearchQuery = async () => {
+    setSearchLoading(true);
+    if (!searchQuery.trim()) return;
+    const res = await axios.get(`/api/user/location-search?q=${searchQuery}`);
+    if (res) {
+      if (res.data?.length > 0) {
+        const { lat, lon } = res.data[0];
+        setPosition([lat, lon]);
+        setSearchLoading(false);
+      }
+    }
+  };
+
+  const handleCurrentLocation = async () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          setPosition([latitude, longitude]);
+        },
+        (error) => {
+          console.log("Location error:", error);
+        },
+        { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+      );
+    }
+  };
 
   return (
     <div className="w-[90%] sm:w-[80%] mx-auto relative py-10">
@@ -235,11 +277,20 @@ const Checkout = () => {
             <div className="flex gap-2 mt-3">
               <input
                 type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="flex-1 border p-3 shadow-lg rounded-2xl focus:ring-2 focus:ring-green-500 text-sm outline-none"
                 placeholder="search your city..."
               />
-              <button className="bg-green-600 text-white px-5 font-medium rounded-lg hover:bg-green-700 transition-all cursor-pointer">
-                Search
+              <button
+                onClick={handleSearchQuery}
+                className="bg-green-600 text-white px-5 font-medium rounded-lg hover:bg-green-700 transition-all cursor-pointer"
+              >
+                {searchLoading ? (
+                  <Loader2 size={22} className=" animate-spin" />
+                ) : (
+                  "Search"
+                )}
               </button>
             </div>
 
@@ -258,8 +309,77 @@ const Checkout = () => {
                   <DraggableMarker />
                 </MapContainer>
               )}
+
+              <motion.button
+                onClick={handleCurrentLocation}
+                whileTap={{ scale: 0.93 }}
+                className="absolute right-4 z-999 text-white hover:bg-green-700 transition-all flex items-center justify-center bottom-4 bg-green-600 rounded-full p-3"
+              >
+                <LocateFixed size={22} />
+              </motion.button>
             </div>
           </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
+          className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100"
+        >
+          <h2 className="flex gap-2 mb-4 text-xl font-semibold text-gray-800">
+            <CreditCard className="text-green-700" /> Payment Method
+          </h2>
+          <div className="space-y-4 mb-6">
+            <button
+              onClick={() => setPaymentMethod("online")}
+              className={`flex gap-3 items-center p-3 w-full border rounded-lg transition-all ${
+                paymentMethod === "online"
+                  ? "border-green-700 bg-green-100 shadow-sm hover:bg-gray-50"
+                  : "hover:bg-gray-50"
+              }`}
+            >
+              <CreditCardIcon />
+              <span>Pay Online (Stripe)</span>
+            </button>
+
+            <button
+              onClick={() => setPaymentMethod("cod")}
+              className={`flex gap-3 items-center p-3 w-full border rounded-lg transition-all ${
+                paymentMethod === "cod"
+                  ? "border-green-700 bg-green-100 shadow-sm hover:bg-gray-50"
+                  : "hover:bg-gray-50"
+              }`}
+            >
+              <Truck />
+              <span>Cash on Delivery</span>
+            </button>
+          </div>
+
+          <div className="space-y-2 border-t pt-4 text-sm sm:text-base text-gray-700">
+            <div className="flex justify-between">
+              <span className="font-semibold">Subtotal:</span>
+              <span className="font-semibold text-green-700">₹{subTotal}</span>
+            </div>
+
+            <div className="flex justify-between">
+              <span className="font-semibold">Delivery Fee:</span>
+              <span className="font-semibold text-green-700">
+                ₹{deliveryFee}
+              </span>
+            </div>
+
+            <div className="flex justify-between text-lg pt-3 border-t">
+              <span className="font-bold">Final Amount:</span>
+              <span className="font-bold text-green-700">₹{finalTotal}</span>
+            </div>
+          </div>
+          <motion.button
+            whileTap={{ scale: 0.97}}
+            className="w-full bg-green-600 cursor-pointer hover:bg-green-700 text-white py-3 rounded-full transition-all font-semibold mt-5 duration-300"
+          >
+            {paymentMethod === "online" ? "Pay & Place Order" : "Place Order"}
+          </motion.button>
         </motion.div>
       </div>
     </div>
