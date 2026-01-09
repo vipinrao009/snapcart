@@ -34,6 +34,7 @@ const markerIcon = new L.Icon({
 const Checkout = () => {
   const router = useRouter();
   const { userData } = useSelector((state: RootState) => state.user);
+  const { cartData } = useSelector((state: RootState) => state.cart);
   const { subTotal, finalTotal, deliveryFee } = useSelector(
     (state: RootState) => state.cart
   );
@@ -143,6 +144,40 @@ const Checkout = () => {
         },
         { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
       );
+    }
+  };
+
+  const handleCod = async () => {
+    if (!position) return;
+    try {
+      const res = await axios.post("/api/user/order", {
+        userId: userData?._id,
+        items: cartData.map((item) => ({
+          grocery: item._id,
+          name: item.name,
+          unit: item.unit,
+          price: item.price,
+          image: item.image,
+          quantity: item.quantity,
+        })),
+        totalAmount: finalTotal,
+        address: {
+          fullName: address.name,
+          mobile: address.mobile,
+          city: address.city,
+          state: address.state,
+          pinCode: address.pinCode,
+          fullAddress: address.fullAddress,
+          latitude: position[0],
+          longitude: position[1],
+        },
+        paymentMethod,
+      });
+
+      console.log(res);
+    } catch (error) {
+      console.log(error);
+      
     }
   };
 
@@ -375,7 +410,14 @@ const Checkout = () => {
             </div>
           </div>
           <motion.button
-            whileTap={{ scale: 0.97}}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => {
+              if (paymentMethod === "cod") {
+                handleCod();
+              } else {
+                null;
+              }
+            }}
             className="w-full bg-green-600 cursor-pointer hover:bg-green-700 text-white py-3 rounded-full transition-all font-semibold mt-5 duration-300"
           >
             {paymentMethod === "online" ? "Pay & Place Order" : "Place Order"}
