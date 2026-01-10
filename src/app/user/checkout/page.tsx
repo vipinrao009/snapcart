@@ -174,7 +174,7 @@ const Checkout = () => {
         paymentMethod,
       });
 
-      console.log(res);
+      router.push('/user/order-success')
     } catch (error) {
       console.log(error);
       
@@ -201,7 +201,7 @@ const Checkout = () => {
         Checkout page
       </motion.h1>
 
-      <div className="grid md:grid-cols-2 gap-8 ">
+      <div className="grid md:grid-cols-2 gap-8 items-start">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
