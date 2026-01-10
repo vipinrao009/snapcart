@@ -13,7 +13,7 @@ const page = () => {
         transition={{ duration: 0.4, delay: 0.1 }}
         className="relative"
       >
-        <CheckCircle className="text-green-600 w-24 h-24 md:w-28 md:h-28" />
+        <CheckCircle className="text-green-600 w-20 h-20 mt-4 md:w-24 md:h-24" />
         <motion.div
           initial={{ opacity: 0, scale: 0.6 }}
           animate={{ opacity: [0.3, 0, 0.3], scale: [1, 0.6, 1] }}
@@ -47,7 +47,7 @@ const page = () => {
         transition={{
           duration: 2,
           repeat: Infinity,
-          delay: 1,
+          delay: 1.2,
           ease: easeInOut,
         }}
         className="mt-10"
@@ -57,8 +57,8 @@ const page = () => {
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.4, delay: 1.2 }}
-        className="mt-12"
+        transition={{ duration: 1, delay: 2 }}
+        className="mt-6"
       >
         <Link href={"/user/my-orders"}>
           <motion.div
@@ -80,11 +80,11 @@ const page = () => {
           { top: "15%", left: "10%", size: 3, delay: 0 },
           { top: "30%", left: "25%", size: 4, delay: 0.4 },
           { top: "20%", left: "45%", size: 2.5, delay: 0.8 },
-          { top: "40%", left: "60%", size: 5, delay: 0.2 },
+          { top: "45%", left: "60%", size: 5, delay: 0.2 },
           { top: "25%", left: "75%", size: 3.5, delay: 0.6 },
           { top: "35%", left: "90%", size: 2.5, delay: 1 },
           { top: "55%", left: "20%", size: 4.5, delay: 0.3 },
-          { top: "60%", left: "50%", size: 3, delay: 0.9 },
+          { top: "60%", left: "60%", size: 3, delay: 0.9 },
         ].map((ball, i) => (
           <motion.div
             key={i}
